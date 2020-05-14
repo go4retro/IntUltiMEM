@@ -49,7 +49,6 @@ wire color;
 wire ce_vic;
 wire [2:1]ce_via;
 wire [3:2]ce_io;
-wire s01;
 wire s02;
 wire ce_ram_cpu;
 wire ce_rom_cpu;
@@ -63,7 +62,6 @@ reg [7:0]data_mem_out;
 reg [11:0]data_vic_out;
 reg [15:12]address_vic_out;
 
-assign s01 =                     !s02;
 assign s02 =                     phi2_cpu | phi0_bus;
 
 assign blk[0] =                  s02 & (address_cpu[15:13] == 0);
@@ -90,8 +88,8 @@ assign ce_char_vic =             (address_vic[13:0] < 14'h1000);
 assign va13 =                    ((address_cpu[15:13] == 4) ? 0 : 1);
 
 assign phi0_cpu =                phi0_bus;
-assign phi1_bus =                phi1_cpu;
-assign phi2_bus =                phi2_cpu;
+assign phi1_bus =                !phi0_bus; //phi1_cpu;
+assign phi2_bus =                phi0_bus; //phi2_cpu;
 assign address_bus =             address_cpu;
 assign r_w_bus =                 r_w_cpu;
 assign data_bus =                data_bus_out;
@@ -99,7 +97,7 @@ assign data_cpu =                data_cpu_out;
 assign data_mem =                data_mem_out;
 assign data_vic =                data_vic_out;
 
-assign address_mem =             (phi0_bus ? {3'b1, address_cpu} : {3'b1, address_vic_out , address_vic[11:0]});
+assign address_mem =             (phi0_bus ? {3'b0, address_cpu} : {3'b0, address_vic_out , address_vic[11:0]});
 assign _we_mem =                 (phi0_bus ? r_w_cpu : 1);   // always read on VIC half of cycle
 assign ce_ram_cpu =              (
                                   0
